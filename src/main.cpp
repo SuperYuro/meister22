@@ -3,11 +3,11 @@
 #include <VL53L0X.h>
 #include <Wire.h>
 
-#define SERVO_PIN 4        // D4 Pin
-#define SENSOR_PIN 8       // D8 Pin
-#define ONBOARD_LED 13     // Onboard LED
-#define DECREASE_BUTTON 5  // D5 Pin, black button
-#define INCREASE_BUTTON 6  // D6 Pin, white button
+const int SERVO_PIN = 4;        // D4 Pin for Servo Motor
+const int SENSOR_PIN = 8;       // D8 Pin for IR Sensor
+const int ONBOARD_LED = 13;     // Onboard LED for Debugging
+const int DECREASE_BUTTON = 5;  // D5 Pin, black button
+const int INCREASE_BUTTON = 6;  // D6 Pin, white button
 
 Servo servo;
 VL53L0X sensor;
