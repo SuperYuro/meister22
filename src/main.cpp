@@ -6,8 +6,12 @@
 const int SERVO_PIN = 4;        // D4 Pin for Servo Motor
 const int SENSOR_PIN = 8;       // D8 Pin for IR Sensor
 const int ONBOARD_LED = 13;     // Onboard LED for Debugging
-const int DECREASE_BUTTON = 5;  // D5 Pin, black button
+const int RELEASE_BUTTON = 5;   // D5 Pin, black button
 const int INCREASE_BUTTON = 6;  // D6 Pin, white button
+
+const int CLOCK_PIN = 2;  // D3 for Clock
+
+const short distance_threshold = 100;  // 腕の接近距離判定
 
 Servo servo;
 VL53L0X sensor;
@@ -38,8 +42,10 @@ void setup() {
     // Initialize servo
     servo.attach(SERVO_PIN);
 
-    // Initialize adjust buttons
-    pinMode(DECREASE_BUTTON, INPUT);
+    pinMode(CLOCK_PIN, OUTPUT);
+
+    // Initialize buttons
+    pinMode(RELEASE_BUTTON, INPUT);
     pinMode(INCREASE_BUTTON, INPUT);
 
     // Initialize distance sensor
@@ -73,22 +79,16 @@ void increaseAngle() {
 }
 
 void loop() {
-    // put your main code here, to run repeatedly:
-    /* if (digitalRead(DECREASE_BUTTON) == LOW)
-        decreaseAngle();
-
-    if (digitalRead(INCREASE_BUTTON) == LOW)
-        increaseAngle();
-
-    tightenBelt();
-    loosenBelt(); */
-    unsigned int distance = sensor.readRangeContinuousMillimeters();
+    unsigned short distance = sensor.readRangeContinuousMillimeters();
     Serial.print(distance);
 
-    if (distance < 100)
+    if (distance < 100) {
         digitalWrite(ONBOARD_LED, HIGH);
-    else
+        digitalWrite(CLOCK_PIN, HIGH);
+    } else {
         digitalWrite(ONBOARD_LED, LOW);
+        digitalWrite(CLOCK_PIN, HIGH);
+    }
 
     if (sensor.timeoutOccurred())
         Serial.print(" TIMEOUT");
