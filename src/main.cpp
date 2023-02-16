@@ -8,23 +8,24 @@ const int SENSOR_PIN = 8;       // D8 Pin for IR Sensor
 const int ONBOARD_LED = 13;     // Onboard LED for Debugging
 const int RELEASE_BUTTON = 5;   // D5 Pin, black button
 const int INCREASE_BUTTON = 6;  // D6 Pin, white button
-
-const int CLOCK_PIN = 2;  // D3 for Clock
+const int CLOCK_PIN = 2;        // D3 for Clock
 
 const short distance_threshold = 100;  // 腕の接近距離判定
+
+const unsigned long WAIT = 200;
+
+const int maxAngle = 180;  // サーボモータの最大角度
+const int minAngle = 0;    // サーボモータの最小角度
+
+int tightenAngle = maxAngle;  // ベルトを締めるときのサーボモータの角度
+int loosenAngle = minAngle;  // ベルトを緩めるときのサーボモータの角度
+
+bool isBeltTighten = false;  // ベルトは締まっているか？
 
 Servo servo;
 VL53L0X sensor;
 
-const unsigned long WAIT = 200;
-
-const int maxAngle = 90;
-const int minAngle = -90;
-
-int tightenAngle = maxAngle;
-int loosenAngle = minAngle;
-
-void init_sensor() {
+void initSensor() {
     Wire.begin();
     sensor.setTimeout(500);
 
@@ -49,31 +50,38 @@ void setup() {
     pinMode(INCREASE_BUTTON, INPUT);
 
     // Initialize distance sensor
-    init_sensor();
+    initSensor();
 
     Serial.begin(9600);
 }
 
-void tightenBelt() {
+// ベルトの制御
+// 距離センサの値が一定値以下の場合はベルトを締める
+// 黒いボタンを押すとベルトを緩める
+void controlBelt() {
+    uint16_t distance = sensor.readRangeContinuousMillimeters();
+    Serial.println(distance);
+}
+
+void catchArm() {
     servo.write(tightenAngle);
+    Serial.println("Catch arm");
     delay(WAIT);
 }
 
-void loosenBelt() {
+void releaseArm() {
     servo.write(loosenAngle);
     delay(WAIT);
 }
 
 void decreaseAngle() {
-    if (tightenAngle > minAngle + 5)
-        tightenAngle -= 5;
+    tightenAngle -= tightenAngle > minAngle + 5 ? 5 : 0;
 
     Serial.println("Decrease angle");
 }
 
 void increaseAngle() {
-    if (tightenAngle < maxAngle - 5)
-        tightenAngle += 5;
+    tightenAngle += tightenAngle < maxAngle - 5 ? 5 : 0;
 
     Serial.println("Increase angle");
 }
@@ -89,10 +97,9 @@ void loop() {
         digitalWrite(ONBOARD_LED, LOW);
         digitalWrite(CLOCK_PIN, HIGH);
     }
-
-    if (sensor.timeoutOccurred())
+    if (sensor.timeoutOccurred()) {
         Serial.print(" TIMEOUT");
-
+    }
     Serial.println();
 
     delay(100);
