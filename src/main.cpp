@@ -32,6 +32,10 @@ void initSensor() {
     if (!sensor.init()) {
         Serial.println("Failed to detect and initialize sensor!");
         while (1) {
+            digitalWrite(ONBOARD_LED, HIGH);
+            delay(200);
+            digitalWrite(ONBOARD_LED, LOW);
+            delay(200);
         }
     }
     sensor.startContinuous();
@@ -86,16 +90,25 @@ void increaseAngle() {
     Serial.println("Increase angle");
 }
 
+void pushButton() {
+    pushServo.write(30);
+}
+
 void loop() {
     unsigned short distance = sensor.readRangeContinuousMillimeters();
     Serial.print(distance);
 
-    if (distance < 100) {
-        digitalWrite(ONBOARD_LED, HIGH);
-        digitalWrite(CLOCK_PIN, HIGH);
-    } else {
-        digitalWrite(ONBOARD_LED, LOW);
-        digitalWrite(CLOCK_PIN, HIGH);
+    // ベルトを締める
+    if (distance < DISTANCE_THRESHOLD && isBeltLoosen) {
+        tightenBelt();
+        pushButton();
+        isBeltLoosen = false;
+    }
+    // ベルトを緩める
+    if (digitalRead(RELEASE_BUTTON) && !isBeltLoosen) {
+        loosenBelt();
+        pushButton();
+        isBeltLoosen = true;
     }
     if (sensor.timeoutOccurred()) {
         Serial.print(" TIMEOUT");
