@@ -3,117 +3,80 @@
 #include <VL53L0X.h>
 #include <Wire.h>
 
-const int SERVO_PIN = 4;        // D4 Pin for Servo Motor
-const int SENSOR_PIN = 8;       // D8 Pin for IR Sensor
-const int ONBOARD_LED = 13;     // Onboard LED for Debugging
-const int RELEASE_BUTTON = 5;   // D5 Pin, black button
-const int INCREASE_BUTTON = 6;  // D6 Pin, white button
-const int CLOCK_PIN = 2;        // D3 for Clock
+// General setup
+const int ONBOARD_LED = 13;      // Onboard LED
+const unsigned long WAIT = 200;  // Delay interval
 
-const short distance_threshold = 100;  // 腕の接近距離判定
+// Servo motor
+const int MAIN_SERVO = 4;  // D4 for main servo
+const int PUSH_SERVO = 8;  // D for servo to push button
 
-const unsigned long WAIT = 200;
+Servo main_servo;
+Servo push_servo;
 
-const int maxAngle = 180;  // サーボモータの最大角度
-const int minAngle = 0;    // サーボモータの最小角度
+const int maxAngle = 30;  // Max angle of servo
+const int minAngle = 0;   // Minimum angle of servo
 
-int tightenAngle = maxAngle;  // ベルトを締めるときのサーボモータの角度
-int loosenAngle = minAngle;  // ベルトを緩めるときのサーボモータの角度
+int tightenAngle = maxAngle;
+int loosenAngle = minAngle;
 
-bool isBeltTighten = false;  // ベルトは締まっているか？
+// Versawriter
+const int VERSA_WRITER = 3;  // D3 for versawriter
 
-Servo servo;
+// IR sensor
+const int IR_SENSOR = 8;  // D8 for IR sensor
+
 VL53L0X sensor;
 
-void initSensor() {
+const short DISTANCE_THRESHOLD = 100;
+
+// Button
+const int BLACK_BUTTON = 5;  // D5 for black button
+const int WHITE_BUTTON = 6;  // D6 for white button
+
+// Flags
+bool isBeltLoosen = true;
+
+// Error
+const unsigned long SHORT_INTERVAL = 100;
+const unsigned long MID_INTERVAL = 200;
+const unsigned long LONG_INTERVAL = 500;
+
+void blinkLED(unsigh long interval) {
+    digitalWrite(ONBOARD_LED, HIGH);
+    delay(interval);
+    digitalWrite(ONBOARD_LED, LOW);
+    delay(interval);
+}
+void sensorInitError() {
+    blinkLED(SHORT_INTERVAL);
+    delay(MID_INTERVAL);
+}
+
+void setup() {
+    Serial.begin(9600);
+    // Init onboard LED
+    pinMode(ONBOARD_LED, OUTPUT);
+
+    // Init servo motor
+    main_servo.attach(MAIN_SERVO);
+    push_servo.attach(PUSH_SERVO);
+
+    // Init versawriter
+    pinMode(VERSA_WRITER, OUTPUT);
+
+    // Init IR sensor
     Wire.begin();
     sensor.setTimeout(500);
 
     if (!sensor.init()) {
         Serial.println("Failed to detect and initialize sensor!");
-        while (1) {
-            digitalWrite(ONBOARD_LED, HIGH);
-            delay(200);
-            digitalWrite(ONBOARD_LED, LOW);
-            delay(200);
-        }
+        while (1)
+            sensorInitError();
     }
     sensor.startContinuous();
 }
 
-void setup() {
-    // Initialize on-board LED
-    pinMode(ONBOARD_LED, OUTPUT);
-    // Initialize servo
-    servo.attach(SERVO_PIN);
-
-    pinMode(CLOCK_PIN, OUTPUT);
-
-    // Initialize buttons
-    pinMode(RELEASE_BUTTON, INPUT);
-    pinMode(INCREASE_BUTTON, INPUT);
-
-    // Initialize distance sensor
-    initSensor();
-
-    Serial.begin(9600);
-}
-
-// ベルトの制御
-// 距離センサの値が一定値以下の場合はベルトを締める
-// 黒いボタンを押すとベルトを緩める
-void controlBelt() {
-    uint16_t distance = sensor.readRangeContinuousMillimeters();
-    Serial.println(distance);
-}
-
-void catchArm() {
-    servo.write(tightenAngle);
-    Serial.println("Catch arm");
-    delay(WAIT);
-}
-
-void releaseArm() {
-    servo.write(loosenAngle);
-    delay(WAIT);
-}
-
-void decreaseAngle() {
-    tightenAngle -= tightenAngle > minAngle + 5 ? 5 : 0;
-
-    Serial.println("Decrease angle");
-}
-
-void increaseAngle() {
-    tightenAngle += tightenAngle < maxAngle - 5 ? 5 : 0;
-
-    Serial.println("Increase angle");
-}
-
-void pushButton() {
-    pushServo.write(30);
-}
-
-void loop() {
-    unsigned short distance = sensor.readRangeContinuousMillimeters();
-    Serial.print(distance);
-
-    // ベルトを締める
-    if (distance < DISTANCE_THRESHOLD && isBeltLoosen) {
-        tightenBelt();
-        pushButton();
-        isBeltLoosen = false;
-    }
-    // ベルトを緩める
-    if (digitalRead(RELEASE_BUTTON) && !isBeltLoosen) {
-        loosenBelt();
-        pushButton();
-        isBeltLoosen = true;
-    }
-    if (sensor.timeoutOccurred()) {
-        Serial.print(" TIMEOUT");
-    }
-    Serial.println();
-
-    delay(100);
+void tightenBelt() {
+    main_servo.write(tightenAngle);
 }
