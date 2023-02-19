@@ -17,6 +17,8 @@ Servo push_servo;
 const int maxAngle = 30;  // Max angle of servo
 const int minAngle = 0;   // Minimum angle of servo
 
+const int pushAngle = 5;
+
 int tightenAngle = maxAngle;
 int loosenAngle = minAngle;
 
@@ -79,4 +81,34 @@ void setup() {
 
 void tightenBelt() {
     main_servo.write(tightenAngle);
+    Serial.println("tightenBelt");
+}
+
+void loosenBelt() {
+    main_servo.write(loosenAngle);
+    Serial.println("loosenAngle");
+}
+
+void pushButton() {
+    push_servo.write(pushAngle);
+}
+
+void loop() {
+    unsigned int distance = sensor.readRangeContinuousMillimeters();
+    Serial.println("Distance: " + distance);
+
+    // when distance is shorter than threshold, tighten belt
+    if (distance < DISTANCE_THRESHOLD && isBeltLoosen) {
+        tightenBelt();
+        isBeltLoosen = false;
+    }
+    // when black button is pushed, loosen belt
+    if (digitalRead(RELEASE_BUTTON) && !isBeltLoosen) {
+        loosenBelt();
+        isBeltLoosen = true;
+    }
+    if (sensor.timeoutOccurred()) {
+        Serial.print("Distance: TIMEOUT");
+    }
+    delay(WAIT);
 }
