@@ -44,22 +44,12 @@ const unsigned long SHORT_INTERVAL = 100;
 const unsigned long MID_INTERVAL = 200;
 const unsigned long LONG_INTERVAL = 500;
 
-void blinkLED(unsigned long interval) {
-    digitalWrite(ONBOARD_LED, HIGH);
-    delay(interval);
-    digitalWrite(ONBOARD_LED, LOW);
-    delay(interval);
-}
-
-void sensorInitError() {
-    blinkLED(SHORT_INTERVAL);
-    delay(MID_INTERVAL);
-}
-
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
+    Serial.println("Serial started");
     // Init onboard LED
     pinMode(ONBOARD_LED, OUTPUT);
+    digitalWrite(ONBOARD_LED, LOW);
 
     // Init servo motor
     main_servo.attach(MAIN_SERVO);
@@ -71,13 +61,26 @@ void setup() {
     // Init IR sensor
     Wire.begin();
     sensor.setTimeout(500);
+    sensor.init();
 
-    if (!sensor.init()) {
-        Serial.println("Failed to detect and initialize sensor!");
-        while (1)
-            sensorInitError();
-    }
+    // if (!sensor.init()) {
+    //     Serial.println("Failed to detect and initialize sensor!");
+    //     while (1)
+    //         sensorInitError();
+    // }
     sensor.startContinuous();
+}
+
+void blinkLED(unsigned long interval) {
+    digitalWrite(ONBOARD_LED, HIGH);
+    delay(interval);
+    digitalWrite(ONBOARD_LED, LOW);
+    delay(interval);
+}
+
+void sensorInitError() {
+    blinkLED(SHORT_INTERVAL);
+    delay(MID_INTERVAL);
 }
 
 void tightenBelt() {
