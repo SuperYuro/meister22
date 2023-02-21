@@ -68,24 +68,12 @@ void setup() {
     sensor.setTimeout(500);
     sensor.init();
 
-    // if (!sensor.init()) {
-    //     Serial.println("Failed to detect and initialize sensor!");
-    //     while (1)
-    //         sensorInitError();
-    // }
+    if (!sensor.init()) {
+        Serial.println("Failed to detect and initialize sensor!");
+        while (1) {
+        }
+    }
     sensor.startContinuous();
-}
-
-void blinkLED(unsigned long interval) {
-    digitalWrite(ONBOARD_LED, HIGH);
-    delay(interval);
-    digitalWrite(ONBOARD_LED, LOW);
-    delay(interval);
-}
-
-void sensorInitError() {
-    blinkLED(SHORT_INTERVAL);
-    delay(MID_INTERVAL);
 }
 
 void tightenBelt() {
