@@ -3,6 +3,10 @@
 #include <VL53L0X.h>
 #include <Wire.h>
 
+#define UPLOAD_SPEED 115200
+
+// 300/ 1200/ 2400/ 4800/ 9600/ 14400/ 19200/ 28800/ 38400/ 57600/ 115200
+
 // General setup
 const int ONBOARD_LED = 13;      // Onboard LED
 const unsigned long WAIT = 200;  // Delay interval
@@ -45,11 +49,12 @@ const unsigned long MID_INTERVAL = 200;
 const unsigned long LONG_INTERVAL = 500;
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(UPLOAD_SPEED);
     Serial.println("Serial started");
+
     // Init onboard LED
     pinMode(ONBOARD_LED, OUTPUT);
-    digitalWrite(ONBOARD_LED, LOW);
+    // digitalWrite(ONBOARD_LED, LOW);
 
     // Init servo motor
     main_servo.attach(MAIN_SERVO);
