@@ -44,12 +44,13 @@ const unsigned long SHORT_INTERVAL = 100;
 const unsigned long MID_INTERVAL = 200;
 const unsigned long LONG_INTERVAL = 500;
 
-void blinkLED(unsigh long interval) {
+void blinkLED(unsigned long interval) {
     digitalWrite(ONBOARD_LED, HIGH);
     delay(interval);
     digitalWrite(ONBOARD_LED, LOW);
     delay(interval);
 }
+
 void sensorInitError() {
     blinkLED(SHORT_INTERVAL);
     delay(MID_INTERVAL);
@@ -103,7 +104,7 @@ void loop() {
         isBeltLoosen = false;
     }
     // when black button is pushed, loosen belt
-    if (digitalRead(RELEASE_BUTTON) && !isBeltLoosen) {
+    if (digitalRead(BLACK_BUTTON) && !isBeltLoosen) {
         loosenBelt();
         isBeltLoosen = true;
     }
