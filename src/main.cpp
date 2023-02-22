@@ -18,10 +18,10 @@ const int PUSH_SERVO = 8;  // D for servo to push button
 Servo main_servo;
 Servo push_servo;
 
-const int maxAngle = 30;  // Max angle of servo
-const int minAngle = 0;   // Minimum angle of servo
+const int maxAngle = 90;   // Max angle of servo
+const int minAngle = 180;  // Minimum angle of servo
 
-const int pushAngle = 5;
+const int pushAngle = 1;
 
 int tightenAngle = maxAngle;
 int loosenAngle = minAngle;
@@ -53,7 +53,7 @@ void setup() {
     Serial.println("Serial started");
 
     // Init onboard LED
-    pinMode(ONBOARD_LED, OUTPUT);
+    // pinMode(ONBOARD_LED, OUTPUT);
     // digitalWrite(ONBOARD_LED, LOW);
 
     // Init servo motor
@@ -62,6 +62,10 @@ void setup() {
 
     // Init versawriter
     pinMode(VERSA_WRITER, OUTPUT);
+
+    // Init buttons
+    pinMode(BLACK_BUTTON, INPUT);
+    pinMode(WHITE_BUTTON, INPUT);
 
     // Init IR sensor
     Wire.begin();
@@ -102,6 +106,7 @@ void loop() {
     // when black button is pushed, loosen belt
     if (digitalRead(BLACK_BUTTON) && !isBeltLoosen) {
         loosenBelt();
+        pushButton();
         isBeltLoosen = true;
     }
     if (sensor.timeoutOccurred()) {
