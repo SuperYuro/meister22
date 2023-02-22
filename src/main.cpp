@@ -8,7 +8,7 @@ const int onboard_led = 13;
 const int black_button = 6;
 const int white_button = 5;
 
-const int main_servo = 4;
+const int main_servo = 2;
 Servo servo;
 
 bool flag = true;
@@ -29,12 +29,11 @@ void setup() {
 
 void loop() {
     if (!digitalRead(white_button)) {
-        servo.write(180);
-        Serial.println("Now: 180");
+        servo.write(4);
+        Serial.println("Now: pushing");
+        delay(100);
+        servo.write(12);
+        Serial.println("Now: releasing");
     }
-    if (!digitalRead(black_button)) {
-        servo.write(90);
-        Serial.println("Now: 90");
-    }
-    delay(200);
+    delay(100);
 }
