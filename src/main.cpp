@@ -8,12 +8,15 @@ const int onboard_led = 13;
 const int black_button = 6;
 const int white_button = 5;
 
-const int main_servo = 4;
-Servo servo;
+const int main_servo_pin = 4;
+const int push_servo_pin = 2;
 
-bool flag = true;
+Servo main_servo;
+Servo push_servo;
 
-int angle = 0;
+bool isBeltLoosen = true;
+
+int currentAngle = 90;
 
 void setup() {
     Serial.begin(115200);
@@ -24,17 +27,29 @@ void setup() {
     pinMode(black_button, INPUT);
     pinMode(white_button, INPUT);
 
-    servo.attach(main_servo);
+    main_servo.attach(main_servo_pin);
+    push_servo.attach(push_servo_pin);
 }
 
 void loop() {
-    if (!digitalRead(white_button)) {
-        servo.write(180);
-        Serial.println("Now: 180");
-    }
     if (!digitalRead(black_button)) {
-        servo.write(90);
-        Serial.println("Now: 90");
+        if (isBeltLoosen) {
+            currentAngle = 90;
+            isBeltLoosen = false;
+        } else {
+            currentAngle = 180;
+            isBeltLoosen = true;
+        }
     }
-    delay(200);
+    if (!digitalRead(white_button)) {
+        push_servo.write(0);
+        delay(10);
+        push_servo.write(12);
+        delay(10);
+    }
+    main_servo.write(currentAngle);
+    Serial.print("Now: ");
+    Serial.println(currentAngle);
+
+    delay(100);
 }
