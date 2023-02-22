@@ -11,26 +11,12 @@
 #define ONBOARD_LED 13  // Onboard LED
 #define WAIT 200        // Delay interval
 
-// Servo motor
 #define MAIN_SERVO 4  // D4 for main servo
-#define PUSH_SERVO 2  // D2 for servo to push button
 
 Servo main_servo;
-Servo push_servo;
-
-#define maxAngle 90   // Max angle of main servo
-#define minAngle 180  // Minimum angle of servo
-
-#define pushAngle 1
-
-int tightenAngle = maxAngle;
-int loosenAngle = minAngle;
-
-// Versawriter
-#define VERSA_WRITER 3  // D3 for versawriter
 
 // IR sensor
-#define IR_SENSOR 8  // D8 for IR sensor
+// #define IR_SENSOR 8  // D8 for IR sensor
 
 VL53L0X sensor;
 
@@ -40,26 +26,17 @@ VL53L0X sensor;
 #define BLACK_BUTTON 6  // D6 for black button
 #define WHITE_BUTTON 5  // D5 for white button
 
-// Flags
-bool isBeltLoosen = true;
-
 void setup() {
     Serial.begin(UPLOAD_SPEED);
     Serial.println("Serial started");
 
     // Init onboard LED
-    // pinMode(ONBOARD_LED, OUTPUT);
-    // digitalWrite(ONBOARD_LED, LOW);
+    pinMode(ONBOARD_LED, OUTPUT);
 
     // Init servo motor
     main_servo.attach(MAIN_SERVO);
-    push_servo.attach(PUSH_SERVO);
-
-    // Init versawriter
-    pinMode(VERSA_WRITER, OUTPUT);
 
     // Init buttons
-    pinMode(BLACK_BUTTON, INPUT);
     pinMode(WHITE_BUTTON, INPUT);
 
     // Init IR sensor
@@ -75,39 +52,23 @@ void setup() {
     sensor.startContinuous();
 }
 
-void tightenBelt() {
-    main_servo.write(tightenAngle);
-    Serial.println("tightenBelt");
-}
-
-void loosenBelt() {
-    main_servo.write(loosenAngle);
-    Serial.println("loosenAngle");
-}
-
-void pushButton() {
-    push_servo.write(4);
-    delay(10);
-    push_servo.write(12);
-}
-
 void loop() {
     unsigned int distance = sensor.readRangeContinuousMillimeters();
-    Serial.println("Distance: " + distance);
+    Serial.print("Distance: ");
+    Serial.println(distance);
 
-    // when distance is shorter than threshold, tighten belt
-    if (distance < DISTANCE_THRESHOLD && isBeltLoosen) {
-        tightenBelt();
-        isBeltLoosen = false;
+    if (distance < DISTANCE_THRESHOLD) {
+        digitalWrite(ONBOARD_LED, HIGH);
+
+        main_servo.write(180);
+
+    } else {
+        digitalWrite(ONBOARD_LED, LOW);
+        main_servo.write(90);
     }
-    // when black button is pushed, loosen belt
-    if (digitalRead(BLACK_BUTTON) && !isBeltLoosen) {
-        loosenBelt();
-        pushButton();
-        isBeltLoosen = true;
+    if (!digitalRead(WHITE_BUTTON)) {
+        main_servo.write(90);
     }
-    if (sensor.timeoutOccurred()) {
-        Serial.print("Distance: TIMEOUT");
-    }
+
     delay(WAIT);
 }
