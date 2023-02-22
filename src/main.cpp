@@ -8,45 +8,40 @@
 // 300/ 1200/ 2400/ 4800/ 9600/ 14400/ 19200/ 28800/ 38400/ 57600/ 115200
 
 // General setup
-const int ONBOARD_LED = 13;      // Onboard LED
-const unsigned long WAIT = 200;  // Delay interval
+#define ONBOARD_LED 13  // Onboard LED
+#define WAIT 200        // Delay interval
 
 // Servo motor
-const int MAIN_SERVO = 4;  // D4 for main servo
-const int PUSH_SERVO = 8;  // D for servo to push button
+#define MAIN_SERVO 4  // D4 for main servo
+#define PUSH_SERVO 2  // D2 for servo to push button
 
 Servo main_servo;
 Servo push_servo;
 
-const int maxAngle = 90;   // Max angle of servo
-const int minAngle = 180;  // Minimum angle of servo
+#define maxAngle 90   // Max angle of main servo
+#define minAngle 180  // Minimum angle of servo
 
-const int pushAngle = 1;
+#define pushAngle 1
 
 int tightenAngle = maxAngle;
 int loosenAngle = minAngle;
 
 // Versawriter
-const int VERSA_WRITER = 3;  // D3 for versawriter
+#define VERSA_WRITER 3  // D3 for versawriter
 
 // IR sensor
-const int IR_SENSOR = 8;  // D8 for IR sensor
+#define IR_SENSOR 8  // D8 for IR sensor
 
 VL53L0X sensor;
 
-const short DISTANCE_THRESHOLD = 100;
+#define DISTANCE_THRESHOLD 100
 
 // Button
-const int BLACK_BUTTON = 5;  // D5 for black button
-const int WHITE_BUTTON = 6;  // D6 for white button
+#define BLACK_BUTTON 6  // D6 for black button
+#define WHITE_BUTTON 5  // D5 for white button
 
 // Flags
 bool isBeltLoosen = true;
-
-// Error
-const unsigned long SHORT_INTERVAL = 100;
-const unsigned long MID_INTERVAL = 200;
-const unsigned long LONG_INTERVAL = 500;
 
 void setup() {
     Serial.begin(UPLOAD_SPEED);
@@ -91,7 +86,9 @@ void loosenBelt() {
 }
 
 void pushButton() {
-    push_servo.write(pushAngle);
+    push_servo.write(4);
+    delay(10);
+    push_servo.write(12);
 }
 
 void loop() {
