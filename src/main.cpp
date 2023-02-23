@@ -43,9 +43,8 @@ void loop() {
     }
     if (!digitalRead(white_button)) {
         push_servo.write(0);
-        delay(10);
-        push_servo.write(12);
-        delay(10);
+    } else {
+        push_servo.write(20);
     }
     main_servo.write(currentAngle);
     Serial.print("Now: ");
